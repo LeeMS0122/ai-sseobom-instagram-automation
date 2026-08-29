@@ -1,0 +1,5 @@
+.env.local
+.run/
+__pycache__/
+*.pyc
+

@@ -1,0 +1,64 @@
+name: Publish AI Sseobom carousel
+
+on:
+  schedule:
+    # Monday, Wednesday, Friday at 20:00 Asia/Seoul (11:00 UTC)
+    - cron: "0 11 * * 1,3,5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-sseobom-instagram-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Korean fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate seven cards
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python src/generate.py
+
+      - name: Commit public JPEG media
+        run: |
+          git config user.name "ai-sseobom-bot"
+          git config user.email "ai-sseobom-bot@users.noreply.github.com"
+          git add generated/current data/state.json
+          git commit -m "content: generate scheduled carousel" || true
+          git push
+          echo "MEDIA_COMMIT_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Publish carousel to Instagram
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          IG_GRAPH_VERSION: v26.0
+        run: python src/publish.py generated/current/post.json
+
+      - name: Record successful publish
+        if: success()
+        run: |
+          git add data/state.json
+          git commit -m "state: record Instagram publish" || true
+          git push
+

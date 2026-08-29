@@ -1,0 +1,26 @@
+{
+  "account": "ai.sseobom",
+  "brand_name": "AI 써봄",
+  "series_name": "AI 실험노트",
+  "schedule_kst": "월·수·금 오후 8시",
+  "model": "gpt-5.6-luna",
+  "max_output_tokens": 4000,
+  "cards_per_post": 7,
+  "monthly_openai_budget_usd": 5.0,
+  "pillars": {
+    "monday": "프롬프트 A/B 테스트",
+    "wednesday": "AI 도구 비교 실험",
+    "friday": "직장인 5분 자동화"
+  },
+  "colors": {
+    "background": "#F5F2E9",
+    "ink": "#171A18",
+    "muted": "#6F756F",
+    "lime": "#B8F52B",
+    "green": "#1F4D36",
+    "blue": "#4C6FFF",
+    "white": "#FFFFFF",
+    "line": "#D8D8CE"
+  }
+}
+
